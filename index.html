@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alpine example</title>
+    <link rel="stylesheet" href="demo.css" />
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+      defer
+    ></script>
+  </head>
+  <body>
+    <h2>SCS PAGE</h2>
+    <div class="site">
+      <a
+        href="/checkout"
+        x-data="cart()"
+        @click.prevent
+        class="fragment"
+        :class="[open ? 'fragment open' : 'fragment']"
+      >
+        <div
+          class="cart"
+          x-on:buy-event.window="updateCart($event)"
+          @click="toggle()"
+          @click.away="open = false"
+        >
+          <div class="top">
+            <div class="cartTotal" x-text="total"></div>
+          </div>
+
+          <div class="items">
+            <div x-show.transition="open">
+              <template x-if="items.length">
+                <ul>
+                  <template x-for="item in items" :key="item">
+                    <li class="item">
+                      <span class="item-name" x-text="item.name"></span
+                      ><span
+                        class="item-price"
+                        x-text="`$${item.price}`"
+                      ></span>
+                    </li>
+                  </template>
+                </ul>
+              </template>
+              <button class="checkout" @click="">CHECKOUT</button>
+            </div>
+          </div>
+        </div>
+        <!-- end -->
+      </a>
+
+      <!-- static markup -->
+      <div class="page" x-data="page()">
+        <div class="products">
+          <div
+            class="product"
+            @click="buyItem($dispatch, { name: 'Red ball', price: 200 })"
+          >
+            <div>Red ball</div>
+            <div class="buy-btn" x-show="!active">DETAILS</div>
+            <template x-if="active">
+              <div class="buy-btn">BUY - $200</div>
+            </template>
+          </div>
+          <div
+            class="product"
+            @click="buyItem($dispatch, { name: 'Blue ball', price: 120 })"
+          >
+            <div>Blue ball</div>
+            <div class="buy-btn" x-show="!active">DETAILS</div>
+            <template x-if="active">
+              <div class="buy-btn">BUY - $120</div>
+            </template>
+          </div>
+          <div
+            class="product"
+            @click="buyItem($dispatch, { name: 'Green ball', price: 133 })"
+          >
+            <div>Green ball</div>
+            <div class="buy-btn" x-show="!active">DETAILS</div>
+            <template x-if="active">
+              <div class="buy-btn">BUY - $133</div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function cart() {
+        return {
+          total: "CART IS EMPTY",
+          items: [],
+          open: false,
+          toggle() {
+            if (this.items.length > 0) {
+              this.open = !this.open;
+            }
+          },
+          updateCart(event) {
+            event.detail && this.items.push(event.detail);
+
+            this.total =
+              this.items.length > 0
+                ? "$" + this.items.reduce((i, { price }) => i + price, 0)
+                : this.total;
+          },
+        };
+      }
+
+      function page() {
+        return {
+          active: true,
+          buyItem(dispatch, item) {
+            dispatch("buy-event", item);
+          },
+        };
+      }
+    </script>
+  </body>
+</html>
